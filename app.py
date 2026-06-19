@@ -9,6 +9,8 @@ import requests
 from flask import Flask, request, jsonify
 from jinja2 import Template
 
+from src.utils import weak_encrypt, insecure_hash, run_cmd
+
 app = Flask(__name__)
 
 SECRET_KEY = "django-insecure-do-not-use-0000000000"
@@ -69,6 +71,24 @@ def fetch():
 def weak_hash():
     pw = request.args.get("pw", "")
     return hashlib.md5(pw.encode()).hexdigest()
+
+
+@app.route("/extract")
+def extract_archive():
+    path = request.args.get("path", "")
+    return str(run_cmd(path))
+
+
+@app.route("/utils-hash")
+def utils_hash():
+    pw = request.args.get("pw", "")
+    return insecure_hash(pw)
+
+
+@app.route("/encrypt")
+def encrypt_data():
+    data = request.data or b"sample"
+    return weak_encrypt(data).hex()
 
 
 if __name__ == "__main__":
